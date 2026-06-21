@@ -1101,3 +1101,231 @@ select Movie_ID,sum(Ticket_Price) from shows group by Movie_ID order by sum(Tick
 select s.Movie_ID ,count(t.Ticket_ID) from shows s inner join tickets t on s.Ticket_Price=t.Ticket_Price group by s.Movie_ID;
 
    
+   
+select b.Booking_ID
+from bookings b
+inner join tickets t on b.Booking_ID=t.Booking_ID
+where b.Booking_ID is null;
+
+select s.Movie_ID, sum(s.Ticket_Price)
+from shows s
+group by s.Movie_ID
+order by sum(s.Ticket_Price) desc
+limit 1;
+
+select c.Customer_ID, count(b.Booking_ID)
+from customers c
+inner join bookings b on c.Customer_ID=b.Customer_ID
+group by c.Customer_ID
+having count(b.Booking_ID)>2;
+
+select b.Customer_ID, sum(s.Ticket_Price)
+from bookings b
+inner join shows s on b.Show_ID=s.Show_ID
+group by b.Customer_ID
+order by sum(s.Ticket_Price) desc
+limit 1;
+
+
+select c.Customer_ID, c.First_Name, c.Last_Name
+from customers c
+left join bookings b on c.Customer_ID=b.Customer_ID
+where b.Booking_ID is null;
+
+select m.Movie_ID, max(s.Ticket_Price)
+from movies m
+inner join shows s on m.Movie_ID=s.Movie_ID
+group by m.Movie_ID
+order by max(s.Ticket_Price) desc
+limit 1;
+
+
+select b.Customer_ID, sum(p.Amount)
+from bookings b
+inner join payments p on b.Booking_ID=p.Booking_ID
+group by b.Customer_ID;
+
+select b.Customer_ID, sum(p.Amount)
+from bookings b
+inner join payments p on b.Booking_ID=p.Booking_ID
+group by b.Customer_ID
+having sum(p.Amount) > (
+    select avg(p.Amount) from payments p
+);
+
+
+select sum(s.Ticket_Price)
+from shows s
+order by sum(s.Ticket_Price) desc
+limit 2 offset 1;
+
+select max(Ticket_Price)
+from shows
+where Ticket_Price < (select max(Ticket_Price) from shows);
+
+
+select m.Movie_ID, avg(s.Ticket_Price)
+from movies m
+inner join shows s on m.Movie_ID=s.Movie_ID
+group by m.Movie_ID
+having avg(s.Ticket_Price) > 300;
+
+select m.Movie_ID, sum(s.Ticket_Price)
+from movies m
+inner join shows s on m.Movie_ID=s.Movie_ID
+group by m.Movie_ID
+order by sum(s.Ticket_Price) desc
+limit 1;
+
+select c.Customer_ID, count(b.Booking_ID)
+from customers c
+inner join bookings b on c.Customer_ID=b.Customer_ID
+group by c.Customer_ID;
+
+
+select b.Customer_ID, sum(t.Ticket_Price)
+from bookings b
+inner join tickets t on b.Booking_ID=t.Booking_ID
+group by b.Customer_ID
+order by sum(t.Ticket_Price) desc
+limit 3;
+
+select b.Customer_ID, b.Booking_ID
+from bookings b
+left join payments p on b.Booking_ID=p.Booking_ID
+where p.Payment_ID is null;
+
+select Customer_ID, count(Booking_ID)
+from bookings
+group by Customer_ID
+having count(Booking_ID) > 1;
+
+select b.Customer_ID, sum(p.Amount)
+from bookings b
+inner join payments p on b.Booking_ID=p.Booking_ID
+group by b.Customer_ID
+
+select Movie_ID, count(Show_ID)
+from shows
+group by Movie_ID
+having count(Show_ID) > 3;
+
+select Method_ID, sum(Amount)
+from payments
+group by Method_ID
+order by sum(Amount) desc
+limit 1;
+
+select Customer_ID, count(Booking_ID)
+from bookings
+group by Customer_ID
+having count(Booking_ID)=
+(
+    select max(total)
+    from (
+        select Customer_ID, count(Booking_ID) as total
+        from bookings
+        group by Customer_ID
+    ) x
+);
+
+
+SELECT Customer_ID,
+       Booking_ID,
+       ROW_NUMBER() OVER(PARTITION BY Customer_ID ORDER BY Booking_Date)
+FROM bookings;
+
+select *
+from (
+select *,
+row_number() over(partition by customer_id order by booking_date desc) rn
+from bookings
+) x
+where rn = 1;
+
+select *
+from (
+select *,
+dense_rank() over(partition by customer_id order by booking_date desc) rnk
+from bookings
+) x
+where rnk = 2;
+
+select customer_id,
+booking_id,
+lag(booking_date) over(partition by customer_id order by booking_date)
+from bookings;
+
+select customer_id,
+booking_id,
+lead(booking_date) over(partition by customer_id order by booking_date)
+from bookings;
+
+select customer_id,
+count(*) over(partition by customer_id)
+from bookings;
+
+
+select customer_id,
+sum(amount) over(partition by customer_id)
+from payments;
+
+select customer_id,
+sum(amount) as total,
+rank() over(order by sum(amount) desc)
+from payments
+group by customer_id;
+
+
+select *
+from (
+select *,
+row_number() over(partition by customer_id order by booking_date) rn
+from bookings
+) x
+where rn = 1;
+
+select customer_id,
+booking_date,
+lag(booking_date) over(partition by customer_id order by booking_date)
+from bookings;
+
+select *,
+dense_rank() over(partition by movie_id order by ticket_price desc) rnk
+from shows;
+
+select *
+from (
+select *,
+dense_rank() over(partition by movie_id order by ticket_price desc) rnk
+from shows
+) x
+where rnk = 2;
+
+select *
+from (
+select movie_id,
+sum(ticket_price) as total,
+rank() over(order by sum(ticket_price) desc) rnk
+from shows
+group by movie_id
+) x
+where rnk = 1;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
